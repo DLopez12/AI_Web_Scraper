@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver import Remote, ChromeOptions
 from selenium.webdriver.chromium.remote_connection import ChromiumRemoteConnection
 from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
 
 
 # Bright Data Proxy with session-based rotation
@@ -38,5 +39,29 @@ def scrape_website(website):
         return html
     finally:
         driver.quit()  # Close the browser after scraping
+
+def extract_data(html_content): # Extract the body content from the HTML
+    soup = BeautifulSoup(html_content, 'html.parser') # Parse the HTML content
+    body_content = soup.body # Get the body content
+    if body_content: # If body content exists
+        return str(body_content) # Return the body content as a string
+    return "" # Return an empty string if body content is not found
+
+def clean_content(body_content): # Clean the body content by removing scripts and styles
+    soup = BeautifulSoup(body_content, 'html.parser') # Parse the body content
+    for script_or_style in soup(["script", "style"]): # Find all script and style tags
+        script_or_style.extract() # Remove the script and style tags
+    
+    cleaned_content = soup.get_text(separator="\n") # Get the text content of the body
+    cleaned_content = "\m".join(
+        line.strip() for line in cleaned_content.splitlines() if line.strip()
+    )
+    
+    return cleaned_content
+
+def split_dom_content(dom_content, max_length=6000): # Split the content into chunks
+    return [
+        dom_content[i:i + max_length] for i in range(0, len(dom_content), max_length) # Split the content into chunks of 6000 characters once limit is reached it starts a new chunk at 6000 + i
+    ]
 
 
