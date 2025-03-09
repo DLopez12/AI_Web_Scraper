@@ -14,7 +14,8 @@ url = st.text_input("Enter Website URL:") # Text Input for URL
 if st.button("Scrape"): # Button to start scraping
     st.write("Scraping...") # Displaying a message
 
-    result = scrape_website(url) # Calling the scrape_website function
+    # Call scrape_website with use_proxy=False to disable the proxy
+    result = scrape_website(url, use_proxy=False)
     
     if result is None:  # Check if scraping failed
         st.error("Scraping failed after multiple attempts. Please try another URL.")

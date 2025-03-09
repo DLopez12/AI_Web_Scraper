@@ -1,8 +1,11 @@
 streamlit 
 langchain 
 langchain_ollama
+langchain-core
 selenium
 beautifulsoup4
 lxml 
 html5lib
 python-dotenv
+fake-useragent
+Pillow

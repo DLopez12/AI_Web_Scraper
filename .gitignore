@@ -1,0 +1,27 @@
+# Virtual environment folders
+venv/
+.venv/
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Local development files
+*.swp
+*.swo
