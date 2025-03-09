@@ -30,7 +30,7 @@ __pycache__/
 *config.json
 
 # Chromedriver
- *.chromedriver.exe
+ chromedriver.exe
 
 # CAPTCHA
-*.captcha.png
+captcha.png
