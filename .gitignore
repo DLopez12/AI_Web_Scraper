@@ -25,3 +25,6 @@ __pycache__/
 # Local development files
 *.swp
 *.swo
+
+# JSON
+*config.json
