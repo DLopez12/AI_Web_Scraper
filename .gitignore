@@ -28,3 +28,9 @@ __pycache__/
 
 # JSON
 *config.json
+
+# Chromedriver
+ *.chromedriver
+
+# CAPTCHA
+*.captcha.png
