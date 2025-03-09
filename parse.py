@@ -1,3 +1,4 @@
+import asyncio
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -12,18 +13,17 @@ template = (
 
 
 model = OllamaLLM(model="llama3.1")
+
+async def parse_chunk(chain, chunk, parse_description, i): # Parse the chunk of content
+    response = await chain.ainvoke({"dom_content": chunk, "parse_description": parse_description}) # await the response from the chain
+    print(f"Parsed batch {i}") # Print the batch number
+    return response # Return the response
                   
-def parse_with_ollama(dom_chunks, parse_description):
-    prompt = ChatPromptTemplate.from_template(template) # Create a prompt from the template
-    chain = prompt | model # Combine the prompt and the model
+async def parse_with_ollama(dom_chunks, parse_description): # Parse the content using Ollama
+    prompt = ChatPromptTemplate.from_template(template)  # Create a prompt using the template
+    chain = prompt | model  # Chain the prompt and the model
 
-    parsed_results = []
+    tasks = [parse_chunk(chain, chunk, parse_description, i) for i, chunk in enumerate(dom_chunks, start=1)] # Create a list of tasks
+    parsed_results = await asyncio.gather(*tasks)  # Gather the results from the tasks
 
-    for i, chunk in enumerate(dom_chunks, start=1): # take chunks of the content and pass it to the model
-        response = chain.invoke(
-            {"dom_content": chunk, "parse_description": parse_description} # pass the content and the description to the model
-        )
-        print(f"Parsed batch {i} of {len(dom_chunks)}")
-        parsed_results.append(response) # append the response to the parsed results
-
-    return "\n".join(parsed_results) # join them and return the parsed results
+    return "\n".join(parsed_results) # Return the parsed results as a single string

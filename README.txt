@@ -64,3 +64,6 @@ License
 This project is open-source under the MIT License.
 Author: Devanno Lopez
 NameGitHub: DLopez12
+
+## Demo
+![AI Web Scraper Demo](demo.gif)

@@ -1,4 +1,6 @@
 import random
+import time
+import json
 from selenium import webdriver
 from selenium.webdriver import Remote, ChromeOptions
 from selenium.webdriver.chromium.remote_connection import ChromiumRemoteConnection
@@ -8,10 +10,11 @@ from bs4 import BeautifulSoup
 
 # Bright Data Proxy with session-based rotation
 def get_proxy():
-    session_id = random.randint(100000, 999999)  # Random session ID for each request
-    return f"https://brd-customer-hl_cc258aa6-zone-ai_scraper-session-{session_id}:e9xsr5wigla2@brd.superproxy.io:9515"
+    with open("config.json", "r") as file:
+        config = json.load(file)
+    return config.get("proxy", None) # use default none if no proxy is set
 
-def scrape_website(website):
+def scrape_website(website, max_retries=3): # Scrape the website using a rotating proxy
     print("Launching Browser")
 
     proxy_url = get_proxy()  # Get a new proxy for each request
@@ -22,23 +25,30 @@ def scrape_website(website):
     options.add_argument("--disable-dev-shm-usage")  # Prevent resource issues in Docker/Linux
     options.add_argument(f"--proxy-server={proxy_url}")  # Use rotating proxy
 
-    driver = webdriver.Remote(command_executor=proxy_url, options=options)
+    for attempt in range(max_retries):
+        driver = webdriver.Remote(command_executor=proxy_url, options=options)
 
-    try:
-        print('Waiting for captcha to solve')
-        solve_res = driver.execute_script("""
-            return new Promise((resolve) => {
-                setTimeout(() => resolve({status: 'solved'}), 10000);
-            });
-        """)
-        print('Captcha solve status:', solve_res['status'])
+        try:
+            print(f'Attempt {attempt + 1}: Navigating to {website}...')
+            driver.get(website)  
+            time.sleep(2)  # Allow time for page to load
 
-        driver.get(website)  # Navigate to the website
-        print('Navigated to Website! Scraping page content now...')
-        html = driver.page_source
-        return html
-    finally:
-        driver.quit()  # Close the browser after scraping
+            if "captcha" in driver.page_source.lower():  
+                print("Captcha detected! Retrying with new proxy...")
+                driver.quit()
+                continue  
+
+            print('Scraping page content...')
+            html = driver.page_source
+            return html
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            driver.quit()  
+        time.sleep(5)  # Wait before retrying
+    
+    print("Failed to scrape website after multiple attempts.")
+    return None
 
 def extract_data(html_content): # Extract the body content from the HTML
     soup = BeautifulSoup(html_content, 'html.parser') # Parse the HTML content
@@ -53,7 +63,7 @@ def clean_content(body_content): # Clean the body content by removing scripts an
         script_or_style.extract() # Remove the script and style tags
     
     cleaned_content = soup.get_text(separator="\n") # Get the text content of the body
-    cleaned_content = "\m".join(
+    cleaned_content = "\n".join(
         line.strip() for line in cleaned_content.splitlines() if line.strip()
     )
     
