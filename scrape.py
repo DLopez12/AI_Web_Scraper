@@ -35,7 +35,6 @@ def get_random_headers():
             "User-Agent": ua.random,  # Set User-Agent header
             "Accept-Language": "en-US,en;q=0.9",  # Set Accept-Language header
             "Referer": "https://www.google.com/",  # Set Referer header
-            "DNT": "1",  # Set Do Not Track header
         }
     except Exception as e:
         print(f"Error generating User-Agent: {e}")
