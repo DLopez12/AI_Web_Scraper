@@ -39,7 +39,7 @@ def get_random_headers():
     except Exception as e:
         print(f"Error generating User-Agent: {e}")
         return {  # Fallback to a static User-Agent if fake_useragent fails
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
         }
 
 # Simulate human-like interaction before clicking
